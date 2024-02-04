@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hushh_proto/screens/home.dart';
+import 'package:hushh_proto/screens/widgets/button.dart';
 import 'package:hushh_proto/screens/widgets/colors.dart';
 import 'package:hushh_proto/screens/widgets/dataset.dart';
-import 'package:hushh_proto/screens/widgets/dropdown.dart';
-import 'package:hushh_proto/screens/widgets/textfield.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class DatabasePage extends StatefulWidget {
   const DatabasePage({super.key});
@@ -13,12 +14,10 @@ class DatabasePage extends StatefulWidget {
 }
 
 class _DatabasePageState extends State<DatabasePage> {
+  bool coolText = false;
   //Controllers
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
-  List dailyController = [];
-  List partyController = [];
-  List formalsController = [];
 
   //Lists
   List dailyWear = [];
@@ -35,14 +34,6 @@ class _DatabasePageState extends State<DatabasePage> {
     formalsWear = database['formals'];
     partyWear = database['party'];
     userGender = database['gender'];
-
-    //generate controllers for each
-    dailyController = List.generate(dailyWear.length,
-        (index) => TextEditingController(text: dailyWear[index]));
-    partyController = List.generate(partyWear.length,
-        (index) => TextEditingController(text: partyWear[index]));
-    formalsController = List.generate(formalsWear.length,
-        (index) => TextEditingController(text: formalsWear[index]));
   }
 
   @override
@@ -74,147 +65,188 @@ class _DatabasePageState extends State<DatabasePage> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 30),
-              customTextField(
-                context,
-                'Name',
-                _nameController,
-                lightMode ? Pallet.black : Pallet.white,
+              const SizedBox(height: 20),
+
+              Center(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      coolText = !coolText;
+                    });
+                  },
+                  child: Text(
+                    'Tap here if you are cool',
+                    style: TextStyle(
+                      color: Pallet.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 10),
-              customTextField(
-                context,
-                'Age',
-                _ageController,
-                lightMode ? Pallet.black : Pallet.white,
+              //Cool Text
+              Visibility(
+                visible: coolText,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'I am Aaditya Jagdale, the creator of Zeus. I present you this app as an application for a flutter dev intern at your company Hushh.ai',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Pallet.white,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'I am proposing you a deal',
+                        style: TextStyle(
+                          color: Pallet.white,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.asset(
+                          "assets/meme.png",
+                          height: 200,
+                          width: 200,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'What do you think? I am pretty good at what I do 😎\nI mean I have cool projects in my portfolio also 3 internships specifically in flutter development.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Pallet.white,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          socialButton(
+                              'assets/linkedin.svg',
+                              'LinkedIn',
+                              () => launchUrl(Uri.parse(
+                                  'https://www.linkedin.com/in/aaditya-jagdale/'))),
+                          const SizedBox(width: 10),
+                          socialButton(
+                            'assets/github.svg',
+                            'Github',
+                            () => launchUrlString(
+                                'https://github.com/Contro1-cs'),
+                          ),
+                          const SizedBox(width: 10),
+                          socialButton(
+                              'assets/twitter.svg',
+                              'X',
+                              () => launchUrlString(
+                                  'https://twitter.com/Pxa_cheesecake')),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+              Center(
+                child: Text(
+                  'Dataset Information',
+                  style: TextStyle(
+                    color: Pallet.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
               ),
               const SizedBox(height: 10),
-              customDropDown(context, lightMode, userGender, (value) {
-                setState(() {
-                  userGender = value!;
-                  database['gender'] = value;
-                });
-              }, gender, 'Gender'),
-              const SizedBox(height: 5),
 
-              //Daily Wear
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Daily Wear',
-                      style: TextStyle(
-                        color: lightMode ? Pallet.black : Pallet.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'For simplicity the dataset used in this version of app is static. However, the data can be easily fetched from backend but I dont want to complicate stuff.',
+                    style: TextStyle(
+                      color: Pallet.white,
                     ),
-                    const SizedBox(height: 5),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: dailyWear.length,
-                      itemBuilder: (context, index) {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            customTextField2(
-                              context,
-                              dailyController[index],
-                              lightMode ? Pallet.black : Pallet.white,
-                            ),
-                            const SizedBox(height: 10),
-                          ],
-                        );
-                      },
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'The data that is used in this app is: ',
+                    style: TextStyle(
+                      color: Pallet.white,
                     ),
-                  ],
-                ),
-              ),
-
-              //Party wear
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Party Wear',
-                      style: TextStyle(
-                        color: lightMode ? Pallet.black : Pallet.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Daily wear: ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Pallet.white,
                     ),
-                    const SizedBox(height: 5),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: partyWear.length,
-                      itemBuilder: (context, index) {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            customTextField2(
-                              context,
-                              partyController[index],
-                              lightMode ? Pallet.black : Pallet.white,
-                            ),
-                            const SizedBox(height: 10),
-                          ],
-                        );
-                      },
+                  ),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: dailyWear.length,
+                    itemBuilder: (context, index) {
+                      return Text(
+                        '  -   ${dailyWear[index]}',
+                        style: TextStyle(
+                          color: Pallet.white,
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Party wear: ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Pallet.white,
                     ),
-                  ],
-                ),
-              ),
-
-              //Formals
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Formal Wear',
-                      style: TextStyle(
-                        color: lightMode ? Pallet.black : Pallet.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  ),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: dailyWear.length,
+                    itemBuilder: (context, index) {
+                      return Text(
+                        '  -   ${partyWear[index]}',
+                        style: TextStyle(
+                          color: Pallet.white,
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Formal wear: ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Pallet.white,
                     ),
-                    const SizedBox(height: 5),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: formalsWear.length,
-                      itemBuilder: (context, index) {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            customTextField2(
-                              context,
-                              formalsController[index],
-                              lightMode ? Pallet.black : Pallet.white,
-                            ),
-                            const SizedBox(height: 10),
-                          ],
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                  ),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: formalsWear.length,
+                    itemBuilder: (context, index) {
+                      return Text(
+                        '  -   ${dailyWear[index]}',
+                        style: TextStyle(
+                          color: Pallet.white,
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),
