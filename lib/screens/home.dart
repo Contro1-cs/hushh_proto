@@ -45,6 +45,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void initState() {
+    fetchData();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Future<void> geminiAPI(String prompt) async {
       try {
@@ -125,10 +131,7 @@ class _HomePageState extends State<HomePage> {
                 {
                   "role": "model",
                   "parts": [
-                    {
-                      "text":
-                          "Your daily wardrobe has black shorts, a white T-shirt and blue pyjamas"
-                    }
+                    {"text": "Your daily wardrobe has ${dailyWear.join(", ")}"}
                   ]
                 },
                 {
@@ -142,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                   "parts": [
                     {
                       "text":
-                          "Your current formal wardrobe has blue shirt, red tie, black blazer, and brown shoes"
+                          "Your current formal wardrobe has ${formalsWear.join(", ")}"
                     }
                   ]
                 },
@@ -157,22 +160,7 @@ class _HomePageState extends State<HomePage> {
                   "parts": [
                     {
                       "text":
-                          "Your party wardrobe has black shirt, blue pants and black shoes"
-                    }
-                  ]
-                },
-                {
-                  "role": "user",
-                  "parts": [
-                    {"text": "What can I wear for my next party?"}
-                  ]
-                },
-                {
-                  "role": "model",
-                  "parts": [
-                    {
-                      "text":
-                          "Based on the items in your party wear wardrobe, you can wear the following outfit:\n\n- Black shirt\n- Blue pants\n- Black shoes\n\nYou can accessorize this outfit with a watch, bracelet, or necklace to complete the look. If the party is more formal, you could add a blazer or jacket."
+                          "Your party wardrobe has ${formalsWear.join(", ")}"
                     }
                   ]
                 },
@@ -181,7 +169,7 @@ class _HomePageState extends State<HomePage> {
                   "parts": [
                     {
                       "text":
-                          '$prompt. Dont print message such as "These are only the items listed in your daile wear" etc'
+                          '$prompt. Dont give me unnecessary message such as "These are only the items listed in your daile wear" etc'
                     }
                   ]
                 }
