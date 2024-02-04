@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
                 {
                   "role": "user",
                   "parts": [
-                    {"text": "I am 21 year old male."}
+                    {"text": "I am $age year old $gender"}
                   ]
                 },
                 {
@@ -181,7 +181,7 @@ class _HomePageState extends State<HomePage> {
                   "parts": [
                     {
                       "text":
-                          '$prompt. Dont print message such as "THese are only the items listed in your daile wear" etc'
+                          '$prompt. Dont print message such as "These are only the items listed in your daile wear" etc'
                     }
                   ]
                 }
@@ -190,7 +190,7 @@ class _HomePageState extends State<HomePage> {
                 "temperature": 0.9,
                 "topK": 1,
                 "topP": 1,
-                "maxOutputTokens": 2048,
+                "maxOutputTokens": 1024,
                 "stopSequences": []
               },
               "safetySettings": [
