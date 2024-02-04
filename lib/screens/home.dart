@@ -46,8 +46,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     Future<void> geminiAPI(String prompt) async {
-      String enhancedPrompt =
-          'I am $age years old $userGender. This is my current wardrobe. Daily wear=(${dailyWear.join(', ')}. Formal wear=(${formalsWear.join(', ')})). Party wear=(${partyWear.join(', ')}). Cosidering the above data $prompt';
       try {
         // Define the endpoint URL
         const String url =
@@ -58,17 +56,158 @@ class _HomePageState extends State<HomePage> {
             headers: <String, String>{
               'Content-Type': 'application/json',
             },
-            body: jsonEncode(
-              {
-                "contents": [
-                  {
-                    "parts": [
-                      {"text": enhancedPrompt}
-                    ]
-                  }
-                ]
+            body: jsonEncode({
+              "contents": [
+                {
+                  "role": "user",
+                  "parts": [
+                    {"text": "I am 21 year old male."}
+                  ]
+                },
+                {
+                  "role": "model",
+                  "parts": [
+                    {"text": "Okay I have noted your age and gender."}
+                  ]
+                },
+                {
+                  "role": "user",
+                  "parts": [
+                    {
+                      "text":
+                          "My current daily wear wardrobe is ${dailyWear.join(", ")}"
+                    }
+                  ]
+                },
+                {
+                  "role": "model",
+                  "parts": [
+                    {
+                      "text":
+                          "Okay I have noted down items in your daily wardrobe"
+                    }
+                  ]
+                },
+                {
+                  "role": "user",
+                  "parts": [
+                    {
+                      "text":
+                          "My current party wear wardrobe has ${partyWear.join(", ")}"
+                    }
+                  ]
+                },
+                {
+                  "role": "model",
+                  "parts": [
+                    {"text": "Okay I have noted your party wear wardrobe"}
+                  ]
+                },
+                {
+                  "role": "user",
+                  "parts": [
+                    {"text": "My formal wardrobe has ${formalsWear.join(", ")}"}
+                  ]
+                },
+                {
+                  "role": "model",
+                  "parts": [
+                    {"text": "Okay I have noted items in your formal wardrobe"}
+                  ]
+                },
+                {
+                  "role": "user",
+                  "parts": [
+                    {"text": "list items in my daily wear wardrobe"}
+                  ]
+                },
+                {
+                  "role": "model",
+                  "parts": [
+                    {
+                      "text":
+                          "Your daily wardrobe has black shorts, a white T-shirt and blue pyjamas"
+                    }
+                  ]
+                },
+                {
+                  "role": "user",
+                  "parts": [
+                    {"text": "What is in my formal wardrobe?"}
+                  ]
+                },
+                {
+                  "role": "model",
+                  "parts": [
+                    {
+                      "text":
+                          "Your current formal wardrobe has blue shirt, red tie, black blazer, and brown shoes"
+                    }
+                  ]
+                },
+                {
+                  "role": "user",
+                  "parts": [
+                    {"text": "What options do I have in party wear?"}
+                  ]
+                },
+                {
+                  "role": "model",
+                  "parts": [
+                    {
+                      "text":
+                          "Your party wardrobe has black shirt, blue pants and black shoes"
+                    }
+                  ]
+                },
+                {
+                  "role": "user",
+                  "parts": [
+                    {"text": "What can I wear for my next party?"}
+                  ]
+                },
+                {
+                  "role": "model",
+                  "parts": [
+                    {
+                      "text":
+                          "Based on the items in your party wear wardrobe, you can wear the following outfit:\n\n- Black shirt\n- Blue pants\n- Black shoes\n\nYou can accessorize this outfit with a watch, bracelet, or necklace to complete the look. If the party is more formal, you could add a blazer or jacket."
+                    }
+                  ]
+                },
+                {
+                  "role": "user",
+                  "parts": [
+                    {"text": prompt}
+                  ]
+                }
+              ],
+              "generationConfig": {
+                "temperature": 0.9,
+                "topK": 1,
+                "topP": 1,
+                "maxOutputTokens": 2048,
+                "stopSequences": []
               },
-            ));
+              "safetySettings": [
+                {
+                  "category": "HARM_CATEGORY_HARASSMENT",
+                  "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+                },
+                {
+                  "category": "HARM_CATEGORY_HATE_SPEECH",
+                  "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+                },
+                {
+                  "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                  "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+                },
+                {
+                  "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                  "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+                }
+              ]
+            }));
 
         // Check if the request was successful (status code 200)
         if (response.statusCode == 200) {
