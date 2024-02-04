@@ -324,9 +324,25 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             child: chatList.isEmpty
                 ? Center(
-                    child: lightMode
-                        ? SvgPicture.asset("assets/zeus_dark.svg")
-                        : SvgPicture.asset("assets/zeus.svg"),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        lightMode
+                            ? SvgPicture.asset("assets/zeus_dark.svg")
+                            : SvgPicture.asset("assets/zeus.svg"),
+                        const SizedBox(height: 20),
+                        Text(
+                          'Personal Clothing\nAssistant',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Pallet.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ],
+                    ),
                   )
                 : RawScrollbar(
                     thickness: 5,
@@ -405,7 +421,7 @@ class _HomePageState extends State<HomePage> {
                       cursorOpacityAnimates: true,
                       decoration: InputDecoration(
                         border: InputBorder.none,
-                        hintText: 'Message',
+                        hintText: 'Ask to list casual wear items',
                         hintStyle: TextStyle(
                           color: lightMode
                               ? Pallet.black.withOpacity(0.5)

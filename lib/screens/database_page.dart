@@ -66,93 +66,108 @@ class _DatabasePageState extends State<DatabasePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-
-              Center(
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      coolText = !coolText;
-                    });
-                  },
-                  child: Text(
-                    'Tap here if you are cool',
-                    style: TextStyle(
-                      color: Pallet.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              //Cool Text
-              Visibility(
-                visible: coolText,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'I am Aaditya Jagdale, the creator of Zeus. I present you this app as an application for a flutter dev intern at your company Hushh.ai',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Pallet.white,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'I am proposing you a deal',
-                        style: TextStyle(
-                          color: Pallet.white,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.asset(
-                          "assets/meme.png",
-                          height: 200,
-                          width: 200,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'What do you think? I am pretty good at what I do 😎\nI mean I have cool projects in my portfolio also 3 internships specifically in flutter development.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Pallet.white,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          socialButton(
-                              'assets/linkedin.svg',
-                              'LinkedIn',
-                              () => launchUrl(Uri.parse(
-                                  'https://www.linkedin.com/in/aaditya-jagdale/'))),
-                          const SizedBox(width: 10),
-                          socialButton(
-                            'assets/github.svg',
-                            'Github',
-                            () => launchUrlString(
-                                'https://github.com/Contro1-cs'),
+              Container(
+                alignment: Alignment.center,
+                color: Pallet.white,
+                child: Column(
+                  children: [
+                    Center(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            coolText = !coolText;
+                          });
+                        },
+                        child: Text(
+                          'Tap here if you are cool',
+                          style: TextStyle(
+                            color: Pallet.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
                           ),
-                          const SizedBox(width: 10),
-                          socialButton(
-                              'assets/twitter.svg',
-                              'X',
-                              () => launchUrlString(
-                                  'https://twitter.com/Pxa_cheesecake')),
-                        ],
-                      )
-                    ],
-                  ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    //Cool Text
+                    Visibility(
+                      visible: coolText,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'I am Aaditya Jagdale, the creator of Zeus. I present you this app as an application for a flutter dev intern at your company Hushh.ai',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Pallet.black,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              'I am proposing you a deal',
+                              style: TextStyle(
+                                color: Pallet.black,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.asset(
+                                "assets/meme.png",
+                                height: 200,
+                                width: 200,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              'What do you think? I am pretty good at what I do 😎\nI mean someone had to work on 2 live projects and 3 internships to be able to apply at Hushh',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Pallet.black,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              'I have relevant links below. Do visit my profile to see more cool stuff',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Pallet.black,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              children: [
+                                socialButton(
+                                    'assets/linkedin.svg',
+                                    'LinkedIn',
+                                    () => launchUrl(Uri.parse(
+                                        'https://www.linkedin.com/in/aaditya-jagdale/'))),
+                                const SizedBox(width: 10),
+                                socialButton(
+                                  'assets/github.svg',
+                                  'Github',
+                                  () => launchUrlString(
+                                      'https://github.com/Contro1-cs'),
+                                ),
+                                const SizedBox(width: 10),
+                                socialButton(
+                                    'assets/twitter.svg',
+                                    'X',
+                                    () => launchUrlString(
+                                        'https://twitter.com/Pxa_cheesecake')),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-
               const SizedBox(height: 20),
               Center(
                 child: Text(
@@ -165,7 +180,6 @@ class _DatabasePageState extends State<DatabasePage> {
                 ),
               ),
               const SizedBox(height: 10),
-
               Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
