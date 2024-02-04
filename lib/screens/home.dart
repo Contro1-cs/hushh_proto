@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hushh_proto/models/message_model.dart';
 import 'package:hushh_proto/widgets/colors.dart';
 
 class HomePage extends StatefulWidget {
@@ -9,11 +10,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Chat chat = Chat();
   bool lightMode = false;
   TextEditingController chatController = TextEditingController();
   List chatList = [
-    {'role': 'user', 'message': 'My name is Aaditya.'},
-    {'role': 'model', 'message': 'Hey Aaditya How can I help you today?'}
+    Message(sender: 'user', content: 'Hi I am Aaditya'),
+    Message(sender: 'model', content: 'Hi Aaditya how can I help you today?'),
   ];
 
   @override
@@ -60,8 +62,9 @@ class _HomePageState extends State<HomePage> {
             child: ListView.builder(
               itemCount: chatList.length,
               itemBuilder: (context, index) {
-                bool owner = chatList[index]['role'] == 'user' ? true : false;
-                String message = chatList[index]['message'];
+                Message msg = chatList[index];
+                bool owner = msg.sender == 'user' ? true : false;
+                String message = msg.content;
 
                 return Wrap(
                   alignment: owner ? WrapAlignment.end : WrapAlignment.start,
