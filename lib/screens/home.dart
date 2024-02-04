@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hushh_proto/models/message_model.dart';
 import 'package:hushh_proto/widgets/colors.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,16 +12,63 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool loading = false;
+
   Chat chat = Chat();
   bool lightMode = false;
   TextEditingController chatController = TextEditingController();
-  List chatList = [
+  List<Message> chatList = [
     Message(sender: 'user', content: 'Hi I am Aaditya'),
     Message(sender: 'model', content: 'Hi Aaditya how can I help you today?'),
   ];
 
   @override
   Widget build(BuildContext context) {
+    Future<void> geminiAPI(String prompt) async {
+      try {
+        // Define the endpoint URL
+        const String url =
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyBdUzwBDPozaAmnw8P6uku2QlkoVeXCpWA';
+
+        // Make the POST request
+        final response = await http.post(Uri.parse(url),
+            headers: <String, String>{
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode(
+              {
+                "contents": [
+                  {
+                    "parts": [
+                      {"text": prompt}
+                    ]
+                  }
+                ]
+              },
+            ));
+
+        // Check if the request was successful (status code 200)
+        if (response.statusCode == 200) {
+          debugPrint('Prompt sent successfully');
+          setState(() {
+            var body = jsonDecode(response.body);
+            chatList.add(
+              Message(
+                sender: 'model',
+                content: body['candidates'][0]['content']['parts'][0]['text'],
+              ),
+            );
+            ;
+          });
+        } else {
+          debugPrint(
+              'Failed to send prompt. Status code: ${response.statusCode}');
+        }
+      } catch (e) {
+        debugPrint('Error sending prompt: $e');
+      }
+    }
+
     return Scaffold(
       backgroundColor: lightMode ? Pallet.white : Pallet.black,
       appBar: AppBar(
@@ -144,13 +193,19 @@ class _HomePageState extends State<HomePage> {
                         backgroundColor:
                             lightMode ? Pallet.black : Pallet.white),
                     onPressed: () {
-                      setState(() {
-                        chatList.add({
-                          'role': 'user',
-                          'message': chatController.text,
+                      if (chatController.text.trim().isNotEmpty) {
+                        setState(() {
+                          chatList.add(
+                            Message(
+                              sender: 'user',
+                              content: chatController.text.trim(),
+                            ),
+                          );
+                          loading = true;
                         });
-                      });
-                      chatController.clear();
+                        geminiAPI(chatController.text.trim());
+                        chatController.clear();
+                      }
                     },
                     icon: Icon(
                       Icons.send_rounded,
