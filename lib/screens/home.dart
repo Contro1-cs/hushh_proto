@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hushh_proto/models/message_model.dart';
-import 'package:hushh_proto/widgets/colors.dart';
+import 'package:hushh_proto/screens/database_page.dart';
+import 'package:hushh_proto/screens/widgets/colors.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:hushh_proto/screens/widgets/dataset.dart';
+import 'package:hushh_proto/screens/widgets/transitions.dart';
+
+bool lightMode = false;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,19 +19,35 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Chat chat = Chat();
-  
+
   //Controllers
   TextEditingController chatController = TextEditingController();
   ScrollController chatScrollController = ScrollController();
 
   //Variables
   bool loading = false;
-  bool lightMode = false;
+  String age = '';
+  String userGender = '';
+  List dailyWear = [];
+  List formalsWear = [];
+  List partyWear = [];
+
+  //Chat
   List<Message> chatList = [];
+
+  fetchData() {
+    age = database['age'];
+    userGender = database['gender'];
+    dailyWear = database['daily'];
+    formalsWear = database['formals'];
+    partyWear = database['party'];
+  }
 
   @override
   Widget build(BuildContext context) {
     Future<void> geminiAPI(String prompt) async {
+      String enhancedPrompt =
+          'I am $age years old $userGender. This is my current wardrobe. Daily wear=(${dailyWear.join(', ')}. Formal wear=(${formalsWear.join(', ')})). Party wear=(${partyWear.join(', ')}). Cosidering the above data $prompt';
       try {
         // Define the endpoint URL
         const String url =
@@ -42,7 +63,7 @@ class _HomePageState extends State<HomePage> {
                 "contents": [
                   {
                     "parts": [
-                      {"text": prompt}
+                      {"text": enhancedPrompt}
                     ]
                   }
                 ]
@@ -106,9 +127,9 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: <Widget>[
           PopupMenuButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.more_vert,
-              color: Pallet.white,
+              color: lightMode ? Pallet.black : Pallet.white,
             ), // Three dots icon
             itemBuilder: (BuildContext context) => [
               PopupMenuItem(
@@ -122,7 +143,12 @@ class _HomePageState extends State<HomePage> {
                     Text('Shared Data'),
                   ],
                 ),
-                onTap: () {},
+                onTap: () {
+                  rightSlideTransition(
+                    context,
+                    const DatabasePage(),
+                  );
+                },
               ),
               PopupMenuItem(
                 child: const Row(
@@ -145,6 +171,27 @@ class _HomePageState extends State<HomePage> {
                   });
                 },
               ),
+              PopupMenuItem(
+                child: Row(
+                  children: [
+                    Icon(
+                      lightMode ? Icons.dark_mode : Icons.light_mode,
+                      color: Pallet.black,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      lightMode ? 'Dark Mode' : 'Light Mode',
+                      style: const TextStyle(color: Pallet.black),
+                    ),
+                  ],
+                ),
+                onTap: () {
+                  setState(() {
+                    lightMode = !lightMode;
+                  });
+                },
+              ),
             ],
           ),
         ],
@@ -156,7 +203,9 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             child: chatList.isEmpty
                 ? Center(
-                    child: SvgPicture.asset("assets/zeus.svg"),
+                    child: lightMode
+                        ? SvgPicture.asset("assets/zeus_dark.svg")
+                        : SvgPicture.asset("assets/zeus.svg"),
                   )
                 : RawScrollbar(
                     thickness: 5,
