@@ -1,22 +1,28 @@
+List<String> gender = [
+  'female',
+  'male',
+  'others',
+];
+
 Map database = {
   'name': 'Aaditya Jagdale',
-  'age': 21,
+  'age': '21',
+  'gender': gender[0],
 
   //Daily
-  'daily': {
+  'daily': [
     //Top
     'grey oversize tshirt',
     'back print tshirt',
     'black hoodie',
     //bottom
     'black shorts',
-    'blue shorts',
     'olive cargos',
     'black pyjamas',
-  },
+  ],
 
   //Party wear
-  'party': {
+  'party': [
     //Top
     'Black shirt',
     'Floral shirts',
@@ -25,10 +31,10 @@ Map database = {
     'Black jeans',
     'Black cargos',
     'olive cargos',
-  },
+  ],
 
   //Formals
-  'formals': {
+  'formals': [
     //Top
     'Blue shirt',
     'White shirt',
@@ -37,6 +43,5 @@ Map database = {
     'black pants',
     'grey pants',
     'black leather shoes',
-    'brown leather shoes',
-  }
+  ]
 };
