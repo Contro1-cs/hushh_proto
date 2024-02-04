@@ -6,6 +6,7 @@ import 'package:hushh_proto/screens/widgets/colors.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:hushh_proto/screens/widgets/dataset.dart';
+import 'package:hushh_proto/screens/widgets/snackbars.dart';
 import 'package:hushh_proto/screens/widgets/transitions.dart';
 
 bool lightMode = false;
@@ -178,7 +179,10 @@ class _HomePageState extends State<HomePage> {
                 {
                   "role": "user",
                   "parts": [
-                    {"text": prompt}
+                    {
+                      "text":
+                          '$prompt. Dont print message such as "THese are only the items listed in your daile wear" etc'
+                    }
                   ]
                 }
               ],
@@ -223,8 +227,7 @@ class _HomePageState extends State<HomePage> {
             ;
           });
         } else {
-          debugPrint(
-              'Failed to send prompt. Status code: ${response.statusCode}');
+          errorSnackbar(context, 'Something went wrong.');
         }
       } catch (e) {
         debugPrint('Error sending prompt: $e');
@@ -240,18 +243,9 @@ class _HomePageState extends State<HomePage> {
     }
 
     String formatText(String input) {
-      List<String> parts = input.split('**');
-      StringBuffer formattedText = StringBuffer();
+      String formattedText = input.replaceAll("**", "");
 
-      for (int i = 0; i < parts.length; i++) {
-        if (i.isEven) {
-          formattedText.write(parts[i]);
-        } else {
-          formattedText.write(parts[i]);
-        }
-      }
-
-      return formattedText.toString();
+      return formattedText;
     }
 
     return Scaffold(
