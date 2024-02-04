@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hushh_proto/models/message_model.dart';
 import 'package:hushh_proto/widgets/colors.dart';
 import 'dart:convert';
@@ -12,15 +13,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool loading = false;
-
   Chat chat = Chat();
-  bool lightMode = false;
+  
+  //Controllers
   TextEditingController chatController = TextEditingController();
-  List<Message> chatList = [
-    Message(sender: 'user', content: 'Hi I am Aaditya'),
-    Message(sender: 'model', content: 'Hi Aaditya how can I help you today?'),
-  ];
+  ScrollController chatScrollController = ScrollController();
+
+  //Variables
+  bool loading = false;
+  bool lightMode = false;
+  List<Message> chatList = [];
 
   @override
   Widget build(BuildContext context) {
@@ -67,86 +69,144 @@ class _HomePageState extends State<HomePage> {
       } catch (e) {
         debugPrint('Error sending prompt: $e');
       }
+      setState(() {
+        loading = false;
+      });
+      chatScrollController.animateTo(
+        chatScrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.bounceIn,
+      );
+    }
+
+    String formatText(String input) {
+      List<String> parts = input.split('**');
+      StringBuffer formattedText = StringBuffer();
+
+      for (int i = 0; i < parts.length; i++) {
+        if (i.isEven) {
+          formattedText.write(parts[i]);
+        } else {
+          formattedText.write(parts[i]);
+        }
+      }
+
+      return formattedText.toString();
     }
 
     return Scaffold(
       backgroundColor: lightMode ? Pallet.white : Pallet.black,
       appBar: AppBar(
         backgroundColor: lightMode ? Pallet.white : Pallet.black,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              "Zeus",
-              style: TextStyle(
-                color: lightMode ? Pallet.black : Pallet.white,
-              ),
-            ),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  lightMode = !lightMode;
-                });
-              },
-              icon: lightMode
-                  ? const Icon(
-                      Icons.dark_mode,
-                      color: Pallet.black,
-                    )
-                  : const Icon(
-                      Icons.light_mode,
-                      color: Pallet.white,
-                    ),
-            )
-          ],
+        title: Text(
+          "Zeus",
+          style: TextStyle(
+            color: lightMode ? Pallet.black : Pallet.white,
+          ),
         ),
-        centerTitle: true,
+        actions: <Widget>[
+          PopupMenuButton(
+            icon: const Icon(
+              Icons.more_vert,
+              color: Pallet.white,
+            ), // Three dots icon
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem(
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.ios_share,
+                      size: 20,
+                    ),
+                    SizedBox(width: 5),
+                    Text('Shared Data'),
+                  ],
+                ),
+                onTap: () {},
+              ),
+              PopupMenuItem(
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.refresh,
+                      color: Pallet.red,
+                      size: 20,
+                    ),
+                    SizedBox(width: 5),
+                    Text(
+                      'Reset chat',
+                      style: TextStyle(color: Pallet.red),
+                    ),
+                  ],
+                ),
+                onTap: () {
+                  setState(() {
+                    chatList.clear();
+                  });
+                },
+              ),
+            ],
+          ),
+        ],
       ),
       body: Column(
         children: [
           //Chat internface
           const SizedBox(height: 20),
           Expanded(
-            child: ListView.builder(
-              itemCount: chatList.length,
-              itemBuilder: (context, index) {
-                Message msg = chatList[index];
-                bool owner = msg.sender == 'user' ? true : false;
-                String message = msg.content;
-
-                return Wrap(
-                  alignment: owner ? WrapAlignment.end : WrapAlignment.start,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.fromLTRB(
-                        owner ? 50 : 10,
-                        5,
-                        owner ? 10 : 50,
-                        5,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: lightMode ? Pallet.black : Pallet.white,
-                      ),
-                      child: Text(
-                        message,
-                        softWrap: true,
-                        // maxLines: null,
-                        style: TextStyle(
-                          color: lightMode ? Pallet.white : Pallet.black,
-                          fontSize: 16,
-                        ),
-                      ),
+            child: chatList.isEmpty
+                ? Center(
+                    child: SvgPicture.asset("assets/zeus.svg"),
+                  )
+                : RawScrollbar(
+                    thickness: 5,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100),
                     ),
-                  ],
-                );
-              },
-            ),
+                    controller: chatScrollController,
+                    child: ListView.builder(
+                      controller: chatScrollController,
+                      itemCount: chatList.length,
+                      itemBuilder: (context, index) {
+                        Message msg = chatList[index];
+                        bool owner = msg.sender == 'user' ? true : false;
+                        String message = formatText(msg.content);
+
+                        return Wrap(
+                          alignment:
+                              owner ? WrapAlignment.end : WrapAlignment.start,
+                          children: [
+                            Container(
+                              margin: EdgeInsets.fromLTRB(
+                                owner ? 50 : 10,
+                                5,
+                                owner ? 10 : 50,
+                                5,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: lightMode ? Pallet.black : Pallet.white,
+                              ),
+                              child: Text(
+                                message,
+                                softWrap: true,
+                                // maxLines: null,
+                                style: TextStyle(
+                                  color:
+                                      lightMode ? Pallet.white : Pallet.black,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
           ),
 
           //Chat Box
@@ -167,7 +227,9 @@ class _HomePageState extends State<HomePage> {
                     child: TextField(
                       controller: chatController,
                       cursorColor: lightMode ? Pallet.black : Pallet.white,
-                      style: const TextStyle(color: Pallet.white),
+                      style: TextStyle(
+                        color: lightMode ? Pallet.black : Pallet.white,
+                      ),
                       maxLines: null,
                       cursorRadius: const Radius.circular(100),
                       cursorOpacityAnimates: true,
@@ -193,7 +255,7 @@ class _HomePageState extends State<HomePage> {
                         backgroundColor:
                             lightMode ? Pallet.black : Pallet.white),
                     onPressed: () {
-                      if (chatController.text.trim().isNotEmpty) {
+                      if (chatController.text.trim().isNotEmpty && !loading) {
                         setState(() {
                           chatList.add(
                             Message(
@@ -207,10 +269,14 @@ class _HomePageState extends State<HomePage> {
                         chatController.clear();
                       }
                     },
-                    icon: Icon(
-                      Icons.send_rounded,
-                      color: lightMode ? Pallet.white : Pallet.black,
-                    ),
+                    icon: loading
+                        ? const Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : Icon(
+                            Icons.send_rounded,
+                            color: lightMode ? Pallet.white : Pallet.black,
+                          ),
                   ),
                 ),
               ],
