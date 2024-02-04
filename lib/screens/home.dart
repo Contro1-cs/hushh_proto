@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hushh_proto/models/message_model.dart';
 import 'package:hushh_proto/widgets/colors.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,93 +14,199 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Chat chat = Chat();
-  bool lightMode = false;
+  
+  //Controllers
   TextEditingController chatController = TextEditingController();
-  List chatList = [
-    Message(sender: 'user', content: 'Hi I am Aaditya'),
-    Message(sender: 'model', content: 'Hi Aaditya how can I help you today?'),
-  ];
+  ScrollController chatScrollController = ScrollController();
+
+  //Variables
+  bool loading = false;
+  bool lightMode = false;
+  List<Message> chatList = [];
 
   @override
   Widget build(BuildContext context) {
+    Future<void> geminiAPI(String prompt) async {
+      try {
+        // Define the endpoint URL
+        const String url =
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyBdUzwBDPozaAmnw8P6uku2QlkoVeXCpWA';
+
+        // Make the POST request
+        final response = await http.post(Uri.parse(url),
+            headers: <String, String>{
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode(
+              {
+                "contents": [
+                  {
+                    "parts": [
+                      {"text": prompt}
+                    ]
+                  }
+                ]
+              },
+            ));
+
+        // Check if the request was successful (status code 200)
+        if (response.statusCode == 200) {
+          debugPrint('Prompt sent successfully');
+          setState(() {
+            var body = jsonDecode(response.body);
+            chatList.add(
+              Message(
+                sender: 'model',
+                content: body['candidates'][0]['content']['parts'][0]['text'],
+              ),
+            );
+            ;
+          });
+        } else {
+          debugPrint(
+              'Failed to send prompt. Status code: ${response.statusCode}');
+        }
+      } catch (e) {
+        debugPrint('Error sending prompt: $e');
+      }
+      setState(() {
+        loading = false;
+      });
+      chatScrollController.animateTo(
+        chatScrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.bounceIn,
+      );
+    }
+
+    String formatText(String input) {
+      List<String> parts = input.split('**');
+      StringBuffer formattedText = StringBuffer();
+
+      for (int i = 0; i < parts.length; i++) {
+        if (i.isEven) {
+          formattedText.write(parts[i]);
+        } else {
+          formattedText.write(parts[i]);
+        }
+      }
+
+      return formattedText.toString();
+    }
+
     return Scaffold(
       backgroundColor: lightMode ? Pallet.white : Pallet.black,
       appBar: AppBar(
         backgroundColor: lightMode ? Pallet.white : Pallet.black,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              "Zeus",
-              style: TextStyle(
-                color: lightMode ? Pallet.black : Pallet.white,
-              ),
-            ),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  lightMode = !lightMode;
-                });
-              },
-              icon: lightMode
-                  ? const Icon(
-                      Icons.dark_mode,
-                      color: Pallet.black,
-                    )
-                  : const Icon(
-                      Icons.light_mode,
-                      color: Pallet.white,
-                    ),
-            )
-          ],
+        title: Text(
+          "Zeus",
+          style: TextStyle(
+            color: lightMode ? Pallet.black : Pallet.white,
+          ),
         ),
-        centerTitle: true,
+        actions: <Widget>[
+          PopupMenuButton(
+            icon: const Icon(
+              Icons.more_vert,
+              color: Pallet.white,
+            ), // Three dots icon
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem(
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.ios_share,
+                      size: 20,
+                    ),
+                    SizedBox(width: 5),
+                    Text('Shared Data'),
+                  ],
+                ),
+                onTap: () {},
+              ),
+              PopupMenuItem(
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.refresh,
+                      color: Pallet.red,
+                      size: 20,
+                    ),
+                    SizedBox(width: 5),
+                    Text(
+                      'Reset chat',
+                      style: TextStyle(color: Pallet.red),
+                    ),
+                  ],
+                ),
+                onTap: () {
+                  setState(() {
+                    chatList.clear();
+                  });
+                },
+              ),
+            ],
+          ),
+        ],
       ),
       body: Column(
         children: [
           //Chat internface
           const SizedBox(height: 20),
           Expanded(
-            child: ListView.builder(
-              itemCount: chatList.length,
-              itemBuilder: (context, index) {
-                Message msg = chatList[index];
-                bool owner = msg.sender == 'user' ? true : false;
-                String message = msg.content;
-
-                return Wrap(
-                  alignment: owner ? WrapAlignment.end : WrapAlignment.start,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.fromLTRB(
-                        owner ? 50 : 10,
-                        5,
-                        owner ? 10 : 50,
-                        5,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: lightMode ? Pallet.black : Pallet.white,
-                      ),
-                      child: Text(
-                        message,
-                        softWrap: true,
-                        // maxLines: null,
-                        style: TextStyle(
-                          color: lightMode ? Pallet.white : Pallet.black,
-                          fontSize: 16,
-                        ),
-                      ),
+            child: chatList.isEmpty
+                ? Center(
+                    child: SvgPicture.asset("assets/zeus.svg"),
+                  )
+                : RawScrollbar(
+                    thickness: 5,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100),
                     ),
-                  ],
-                );
-              },
-            ),
+                    controller: chatScrollController,
+                    child: ListView.builder(
+                      controller: chatScrollController,
+                      itemCount: chatList.length,
+                      itemBuilder: (context, index) {
+                        Message msg = chatList[index];
+                        bool owner = msg.sender == 'user' ? true : false;
+                        String message = formatText(msg.content);
+
+                        return Wrap(
+                          alignment:
+                              owner ? WrapAlignment.end : WrapAlignment.start,
+                          children: [
+                            Container(
+                              margin: EdgeInsets.fromLTRB(
+                                owner ? 50 : 10,
+                                5,
+                                owner ? 10 : 50,
+                                5,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: lightMode ? Pallet.black : Pallet.white,
+                              ),
+                              child: Text(
+                                message,
+                                softWrap: true,
+                                // maxLines: null,
+                                style: TextStyle(
+                                  color:
+                                      lightMode ? Pallet.white : Pallet.black,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
           ),
 
           //Chat Box
@@ -118,7 +227,9 @@ class _HomePageState extends State<HomePage> {
                     child: TextField(
                       controller: chatController,
                       cursorColor: lightMode ? Pallet.black : Pallet.white,
-                      style: const TextStyle(color: Pallet.white),
+                      style: TextStyle(
+                        color: lightMode ? Pallet.black : Pallet.white,
+                      ),
                       maxLines: null,
                       cursorRadius: const Radius.circular(100),
                       cursorOpacityAnimates: true,
@@ -144,18 +255,28 @@ class _HomePageState extends State<HomePage> {
                         backgroundColor:
                             lightMode ? Pallet.black : Pallet.white),
                     onPressed: () {
-                      setState(() {
-                        chatList.add({
-                          'role': 'user',
-                          'message': chatController.text,
+                      if (chatController.text.trim().isNotEmpty && !loading) {
+                        setState(() {
+                          chatList.add(
+                            Message(
+                              sender: 'user',
+                              content: chatController.text.trim(),
+                            ),
+                          );
+                          loading = true;
                         });
-                      });
-                      chatController.clear();
+                        geminiAPI(chatController.text.trim());
+                        chatController.clear();
+                      }
                     },
-                    icon: Icon(
-                      Icons.send_rounded,
-                      color: lightMode ? Pallet.white : Pallet.black,
-                    ),
+                    icon: loading
+                        ? const Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : Icon(
+                            Icons.send_rounded,
+                            color: lightMode ? Pallet.white : Pallet.black,
+                          ),
                   ),
                 ),
               ],
