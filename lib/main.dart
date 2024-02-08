@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hushh_proto/screens/home.dart';
+import 'package:hushh_proto/screens/github_auth.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // home: const Test(),
-      home: const HomePage(),
+      home: const GithubAuth(),
     );
   }
 }
