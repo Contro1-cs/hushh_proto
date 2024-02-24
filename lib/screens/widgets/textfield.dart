@@ -20,8 +20,7 @@ customTextField(
       ),
       decoration: InputDecoration(
         labelStyle: TextStyle(
-          color: fontColor,
-          fontWeight: FontWeight.w500,
+          color: fontColor.withOpacity(0.7),
         ),
         label: Text(title),
         contentPadding: const EdgeInsets.all(15),
